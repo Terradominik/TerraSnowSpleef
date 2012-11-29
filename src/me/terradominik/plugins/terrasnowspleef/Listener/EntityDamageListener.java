@@ -49,7 +49,8 @@ public class EntityDamageListener implements Listener {
                                         Filer.getConfig().set(spieler.getName() + ".GewonneneRunden", Integer.parseInt(Filer.getConfig().getString(spieler.getName() + ".GewonneneRunden")) + 1);
                                         set.remove(spieler.getName());
                                         spieler.teleport(Bukkit.getWorld("Spawn-Welt").getSpawnLocation());
-                                        plugin.getServer().getScheduler().cancelTask(plugin.getSpiel().getSpielTask());
+                                        plugin.getServer().getScheduler().cancelTasks(plugin);
+                                        plugin.neuesSpiel();
                                     } else {
                                         plugin.broadcastMessage("Es sind noch " + ChatColor.GOLD + "" + set.size() + ChatColor.GRAY + " Spieler übrig");
                                     }

@@ -25,11 +25,11 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class TerraSnowSpleef extends JavaPlugin {
 
-    BlockBreakListener blockBreakListener = new BlockBreakListener(this);
-    BlockPlaceListener blockPlaceListener = new BlockPlaceListener(this);
-    EntityDamageListener entityDamageListener = new EntityDamageListener(this);
-    PlayerQuitListener playerQuitListener = new PlayerQuitListener(this);
-    Spiel spiel;
+    public BlockBreakListener blockBreakListener = new BlockBreakListener(this);
+    public BlockPlaceListener blockPlaceListener = new BlockPlaceListener(this);
+    public EntityDamageListener entityDamageListener = new EntityDamageListener(this);
+    public PlayerQuitListener playerQuitListener = new PlayerQuitListener(this);
+    public Spiel spiel;
      
     /**
      * Was beim einschalten des Plugins passiert
@@ -196,5 +196,9 @@ public class TerraSnowSpleef extends JavaPlugin {
     
     public Spiel getSpiel() {
         return spiel;
+    }
+    
+    public void neuesSpiel() {
+        this.spiel = new Spiel(this);
     }
 }

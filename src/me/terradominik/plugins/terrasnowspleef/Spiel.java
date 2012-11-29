@@ -165,16 +165,21 @@ public class Spiel {
     public void starteSpiel() {
         spiel = true;
         spielTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-            Iterator<String> it = spielerSet.iterator();
-            Player spieler;
-            Block currentblock;
 
             @Override
             public void run() {
-                while (it.hasNext()) {
-                    spieler = plugin.getServer().getPlayer(it.next());
+                Block currentblock;
+                
+                for (String spielerString : spielerSet) {
+                    Player spieler = plugin.getServer().getPlayer(spielerString);
                     if (sf.inSpielfeld(spieler.getLocation())) {
+                        
                         currentblock = spieler.getLocation().add(0, -1, 0).getBlock();
+                        //wenn darüber nicht geht dann:
+                        //currentblock = spieler.getLocation().getBlock().getRelative(BlockFace.DOWN);
+                        //currentblock = spieler.getLocation().getBlock();
+                        
+                        
                         if (currentblock.getType() == Material.SNOW_BLOCK) {
                             currentblock.setTypeIdAndData(78, (byte) 6, false);
                         } else {
@@ -186,9 +191,9 @@ public class Spiel {
                                 }
                             }
                         }
+                        
                     }
                 }
-                it = spielerSet.iterator();
             }
         }, 0L, 10L);
     }
