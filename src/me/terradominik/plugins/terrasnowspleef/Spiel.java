@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -72,7 +73,7 @@ public class Spiel {
      *
      * @return spielerSet
      */
-    public HashSet getSpielerSet() {
+    public HashSet<String> getSpielerSet() {
         return spielerSet;
     }
 
@@ -96,10 +97,9 @@ public class Spiel {
 
             @Override
             public void run() {
-                counter--;
                 if (counter == 0) {
                     joinCountdown = false;
-                    if (spielerSet.size() > plugin.getConfig().getInt("Mindest-Spieler")) {
+                    if (spielerSet.size() >= plugin.getConfig().getInt("Mindest-Spieler")) {
                         plugin.broadcastMessage("SnowSpleef startet jetzt");
                         plugin.getSpiel().starteStartCountdown();
                     } else {
@@ -117,6 +117,7 @@ public class Spiel {
                         plugin.getServer().broadcastMessage(ChatColor.GRAY + "Um beizutreten /tss beitreten eingeben");
                     }
                 }
+                counter--;
             }
         }, 0L, 20L);
     }
@@ -139,8 +140,15 @@ public class Spiel {
             @Override
             public void run() {
                 counter--;
-                if (counter % 20 == 0) {
-                    plugin.broadcastMessage(ChatColor.GOLD + "" + (counter / 20) + "...");
+                if (counter == 0) {
+                    plugin.broadcastMessage(ChatColor.GOLD + "GO!");
+                    startCountdown = false;
+                    plugin.getSpiel().starteSpiel();
+                    plugin.getServer().getScheduler().cancelTask(startCountdownTask);
+                } else {
+                    if (counter % 20 == 0) {
+                        plugin.broadcastMessage(ChatColor.GOLD + "" + (counter / 20) + "...");
+                    }
                 }
                 if (it.hasNext()) {
                     spieler = plugin.getServer().getPlayer(it.next());
@@ -148,12 +156,6 @@ public class Spiel {
                     spieler.getInventory().clear();
                     spieler.getInventory().setContents(items);
                     spieler.teleport(plugin.getSpiel().getSpielfeld().zufaelligerSpawn());
-                }
-                if (counter == 0) {
-                    plugin.broadcastMessage(ChatColor.GOLD + "GO!");
-                    startCountdown = false;
-                    plugin.getSpiel().starteSpiel();
-                    plugin.getServer().getScheduler().cancelTask(startCountdownTask);
                 }
             }
         }, 0L, 1L);
@@ -165,21 +167,20 @@ public class Spiel {
     public void starteSpiel() {
         spiel = true;
         spielTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-
             @Override
             public void run() {
                 Block currentblock;
-                
+
                 for (String spielerString : spielerSet) {
                     Player spieler = plugin.getServer().getPlayer(spielerString);
                     if (sf.inSpielfeld(spieler.getLocation())) {
-                        
-                        currentblock = spieler.getLocation().add(0, -1, 0).getBlock();
-                        //wenn darüber nicht geht dann:
-                        //currentblock = spieler.getLocation().getBlock().getRelative(BlockFace.DOWN);
+
+                        currentblock = spieler.getLocation().add(0, -2, 0).getBlock();
                         //currentblock = spieler.getLocation().getBlock();
-                        
-                        
+                        //wenn darüber nicht geht dann:
+
+                        TerraSnowSpleef.broadcastMessage(currentblock.getType().toString());
+
                         if (currentblock.getType() == Material.SNOW_BLOCK) {
                             currentblock.setTypeIdAndData(78, (byte) 6, false);
                         } else {
@@ -191,7 +192,7 @@ public class Spiel {
                                 }
                             }
                         }
-                        
+
                     }
                 }
             }

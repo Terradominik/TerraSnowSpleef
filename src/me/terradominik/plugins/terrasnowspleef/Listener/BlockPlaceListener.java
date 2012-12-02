@@ -20,15 +20,14 @@ public class BlockPlaceListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         try {
-        if (event.getBlock().getWorld() == plugin.getServer().getWorld(plugin.getConfig().getString("Welt"))) {
-            if (plugin.getSpiel().getSpiel()) {
-                if (plugin.getSpiel().getSpielfeld().inSpielfeld(event.getBlock().getLocation())) {
-                    if (plugin.getSpiel().getSpielerSet().contains(event.getPlayer().getName())) event.setCancelled(true);
+            if (event.getBlock().getWorld() == plugin.getServer().getWorld(plugin.getConfig().getString("Welt"))) {
+                if (plugin.getSpiel().getSpielerSet().contains(event.getPlayer().getName())) {
+                    event.setCancelled(true);
                 }
+
+
             }
-        }
         } catch (NullPointerException npe) {
-            
         }
     }
 }

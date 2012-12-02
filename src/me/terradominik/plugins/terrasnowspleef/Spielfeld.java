@@ -20,8 +20,7 @@ public class Spielfeld {
     private int ebenenAnzahl;
     private World welt;
     private HashSet<Integer> ebenen;
-    private int bauTask;
-    private int loeschTask;
+    private int bauTask, secureCloseTask, loeschTask;
 
     /**
      * Der Konstruktor von "Spielfeld"
@@ -66,49 +65,57 @@ public class Spielfeld {
     public void baueArena() {
         bauTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             int ycounter = xPunkt.getBlockY();
-            int i1 = 0;
             int i2 = 0;
-            int i3 = 0;
 
             @Override
             public void run() {
-                if (i1 < ebenenAnzahl) {
-                    if (i2 <= Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX())) {
-                        for (int i3 = 0; i3 < 5; i3++) {
-                            for (int i4 = 0; i4 <= Math.abs(yPunkt.getBlockZ() - xPunkt.getBlockZ()); i4++) {
+
+                if (i2 < Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX())) {
+                    for (int i4 = 0; i4 <= Math.abs(yPunkt.getBlockZ() - xPunkt.getBlockZ()); i4++) {
+                        for (int i1 = 0; i1 < ebenenAnzahl; i1++) {
+                            for (int i3 = 0; i3 < 5; i3++) {
                                 welt.getBlockAt(
                                         xPunkt.getBlockX() + (i2 * (yPunkt.getBlockX() / Math.abs(yPunkt.getBlockX()))),
-                                        ycounter - i3,
-                                        xPunkt.getBlockZ() + (i4 * (yPunkt.getBlockZ() / Math.abs(yPunkt.getBlockZ())))
-                                ).setType(Material.SNOW_BLOCK);
+                                        ycounter - i3 - (i1 * 20),
+                                        xPunkt.getBlockZ() + (i4 * (yPunkt.getBlockZ() / Math.abs(yPunkt.getBlockZ())))).setType(Material.SNOW_BLOCK);
                             }
                         }
-                        i2++;
-                    } else {
-                        i2 = 0;
-                        i1++;
-                        ycounter -= 20;
                     }
+                    i2++;
                 } else {
+                    Spielfeld.this.secureClose();
                     plugin.getServer().getScheduler().cancelTask(bauTask);
                 }
+
             }
         }, 0L, 5L);
     }
 
-    public void baueArenaAlt() {
-        int ycounter = xPunkt.getBlockY();
-        for (int i1 = 0; i1 < ebenenAnzahl; i1++) {
-            for (int i2 = 0; i2 < 5; i2++) {
-                for (int i3 = 0; i3 <= Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX()); i3++) {
-                    for (int i4 = 0; i4 <= Math.abs(yPunkt.getBlockZ() - xPunkt.getBlockZ()); i4++) {
-                        welt.getBlockAt(xPunkt.getBlockX() + (i3 * (yPunkt.getBlockX() / Math.abs(yPunkt.getBlockX()))), ycounter, xPunkt.getBlockZ() + (i4 * (yPunkt.getBlockZ() / Math.abs(yPunkt.getBlockZ())))).setType(Material.SNOW_BLOCK);
+    public void secureClose() {
+        secureCloseTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+            int ycounter = xPunkt.getBlockY();
+            int i2 = Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX());
+            int i4 = 0;
+
+            @Override
+            public void run() {
+                if (i4 <= Math.abs(yPunkt.getBlockZ() - xPunkt.getBlockZ())) {
+                    for (int i1 = ebenenAnzahl - 1; i1 >= 0; i1--) {
+                        for (int i3 = 4; i3 >= 0; i3--) {
+                            welt.getBlockAt(
+                                    xPunkt.getBlockX() + (i2 * (yPunkt.getBlockX() / Math.abs(yPunkt.getBlockX()))),
+                                    ycounter - i3 - (i1 * 20),
+                                    xPunkt.getBlockZ() + (i4 * (yPunkt.getBlockZ() / Math.abs(yPunkt.getBlockZ())))).setType(Material.SNOW_BLOCK);
+                        }
+
                     }
+                    i4++;
+                } else {
+                    plugin.getServer().getScheduler().cancelTask(secureCloseTask);
                 }
-                ycounter--;
+
             }
-            ycounter -= 15;
-        }
+        }, 0L, 10L);
     }
 
     public boolean inSpielfeld(Location loc) {
@@ -124,21 +131,17 @@ public class Spielfeld {
     }
 
     public void loescheFelder(int y) {
-        Iterator<String> itP = plugin.getSpiel().getSpielerSet().iterator();
         boolean istOberster = true;
-        while (itP.hasNext()) {
-            if (plugin.getServer().getPlayer(itP.next()).getLocation().getBlockY() > y) {
+        for (String spielerName : plugin.getSpiel().getSpielerSet()) {
+            if (plugin.getServer().getPlayer(spielerName).getLocation().getBlockY() > y) {
                 istOberster = false;
             }
         }
-        int zwischen;
         if (istOberster) {
-            Iterator<Integer> itI = ebenen.iterator();
-            while (itI.hasNext()) {
-                zwischen = itI.next();
-                if (y < zwischen) {
-                    this.loescheEbene(zwischen);
-                    ebenen.remove(zwischen);
+            for (int i : ebenen) {
+                if (y < i) {
+                    this.loescheEbene(i);
+                    ebenen.remove(i);
                 }
             }
         }
@@ -151,13 +154,17 @@ public class Spielfeld {
 
             @Override
             public void run() {
-                if (i2 <= Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX())) {
-                    for (int i3 = 0; i3 < 5; i3++) {
-                        for (int i4 = 0; i4 <= Math.abs(yPunkt.getBlockZ() - xPunkt.getBlockZ()); i4++) {
-                            welt.getBlockAt(xPunkt.getBlockX() + (i3 * (yPunkt.getBlockX() / Math.abs(yPunkt.getBlockX()))), ycounter, xPunkt.getBlockZ() + (i4 * (yPunkt.getBlockZ() / Math.abs(yPunkt.getBlockZ())))).setType(Material.SNOW_BLOCK);
+
+                if (i2 < Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX())) {
+                    for (int i4 = 0; i4 <= Math.abs(yPunkt.getBlockZ() - xPunkt.getBlockZ()); i4++) {
+                        for (int i3 = 0; i3 < 5; i3++) {
+                            welt.getBlockAt(
+                                    xPunkt.getBlockX() + (i2 * (yPunkt.getBlockX() / Math.abs(yPunkt.getBlockX()))),
+                                    ycounter - i3,
+                                    xPunkt.getBlockZ() + (i4 * (yPunkt.getBlockZ() / Math.abs(yPunkt.getBlockZ())))).setType(Material.AIR);
                         }
-                        ycounter--;
                     }
+                    i2++;
                 } else {
                     plugin.getServer().getScheduler().cancelTask(loeschTask);
                 }
