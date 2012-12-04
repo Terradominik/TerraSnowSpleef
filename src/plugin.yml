@@ -4,7 +4,7 @@ description: Das taunigste Spleef
 main: me.terradominik.plugins.terrasnowspleef.TerraSnowSpleef
 name: TerraSnowSpleef
 url: http://www.tauncraft.com
-version: 0.1'
+version: 0.2
 load: POSTWORLD;
 permissions:
 commands:

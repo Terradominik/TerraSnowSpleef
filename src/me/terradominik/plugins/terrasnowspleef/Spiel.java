@@ -2,8 +2,6 @@ package me.terradominik.plugins.terrasnowspleef;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import me.terradominik.plugins.terraworld.TerraWorld;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -14,8 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Die Spiellogik von TerraSnowSpleef
- *
+ * die Spiellogik-Klasse von TerraSnowSpleef
  * @author Dominik
  */
 public class Spiel {
@@ -30,7 +27,6 @@ public class Spiel {
 
     /**
      * Der Konstruktor von "Spiel"
-     *
      * @param plugin
      */
     public Spiel(TerraSnowSpleef plugin) {
@@ -43,7 +39,6 @@ public class Spiel {
 
     /**
      * getter von "joinCountdown"
-     *
      * @return joinCountdown
      */
     public boolean getJoinCountdown() {
@@ -52,7 +47,6 @@ public class Spiel {
 
     /**
      * getter von "startCountdown"
-     *
      * @return startCountdown
      */
     public boolean getStartCountdown() {
@@ -61,7 +55,6 @@ public class Spiel {
 
     /**
      * getter von "spiel"
-     *
      * @return spiel
      */
     public boolean getSpiel() {
@@ -70,7 +63,6 @@ public class Spiel {
 
     /**
      * getter von "spielerSet"
-     *
      * @return spielerSet
      */
     public HashSet<String> getSpielerSet() {
@@ -79,15 +71,22 @@ public class Spiel {
 
     /**
      * getter von "spielTask"
-     *
      * @return spielTask
      */
     public static int getSpielTask() {
         return spielTask;
     }
+    
+    /**
+     * getter von "sf"
+     * @return sf
+     */
+    public Spielfeld getSpielfeld() {
+        return sf;
+    }
 
     /**
-     * startet den Countdown bei dem spieler beitreten können
+     * startet den Countdown bei dem Spieler beitreten können
      */
     public void starteJoinCountdown() {
         sf.baueArena();
@@ -123,7 +122,7 @@ public class Spiel {
     }
 
     /**
-     * startet den Countdown bis zu dem die Spieler starten
+     * startet den Countdown bis zu dem das Spiel startet
      */
     public void starteStartCountdown() {
 
@@ -169,37 +168,28 @@ public class Spiel {
         spielTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
             public void run() {
-                Block currentblock;
 
                 for (String spielerString : spielerSet) {
                     Player spieler = plugin.getServer().getPlayer(spielerString);
                     if (sf.inSpielfeld(spieler.getLocation())) {
 
-                        currentblock = spieler.getLocation().add(0, -2, 0).getBlock();
-                        //currentblock = spieler.getLocation().getBlock();
-                        //wenn darüber nicht geht dann:
-
-                        TerraSnowSpleef.broadcastMessage(currentblock.getType().toString());
+                        Block currentblock = spieler.getLocation().add(0, -1, 0).getBlock();
+                        Block aboveblock = currentblock.getRelative(BlockFace.UP);
 
                         if (currentblock.getType() == Material.SNOW_BLOCK) {
-                            currentblock.setTypeIdAndData(78, (byte) 6, false);
-                        } else {
-                            if (currentblock.getType() == Material.SNOW) {
-                                if (currentblock.getData() == (byte) 1) {
-                                    currentblock.setType(Material.AIR);
+                            if (aboveblock.getType() == Material.SNOW) {
+                                if (aboveblock.getData() == (byte) 1) {
+                                    aboveblock.setType(Material.AIR);
                                 } else {
-                                    currentblock.setData((byte) (currentblock.getData() - 1));
+                                    aboveblock.setData((byte) (currentblock.getData() - 1));
                                 }
+                            } else if (aboveblock.getType() == Material.AIR) {
+                                currentblock.setTypeIdAndData(78, (byte) 6, false);
                             }
                         }
-
                     }
                 }
             }
         }, 0L, 10L);
-    }
-
-    public Spielfeld getSpielfeld() {
-        return sf;
     }
 }

@@ -8,17 +8,16 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 /**
- * Die Command Klasse von TerraSnowSpleef
- *
- * @author Dominik
+ * die Command Klasse von TerraSnowSpleef
+ * hier werden alle Commands bearbeitet
+ * @author Terradominik
  */
 public class Commands {
 
-    private static TerraSnowSpleef plugin;
+    private TerraSnowSpleef plugin;
 
     /**
-     * Der Konstruktor von "Commands"
-     *
+     * der Konstruktor von "Commands"
      * @param plugin
      */
     public Commands(TerraSnowSpleef plugin) {
@@ -26,15 +25,18 @@ public class Commands {
     }
 
     /**
-     * Beim eingeben des beitreten Commands
-     *
+     * lässt den Spieler beitreten
      * @param spieler
      */
     public void beitreten(Player spieler) {
+        
+        //Promote
         if (!spieler.hasPermission("terraworld.spieler")) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "pex user " + spieler.getName() + " group set spiele");
         }
+        
         Spiel spiel = plugin.getSpiel();
+        
         if (!spiel.getJoinCountdown()) {
             if (!spiel.getSpiel() && !spiel.getStartCountdown()) {
                 spiel.starteJoinCountdown();
@@ -77,13 +79,46 @@ public class Commands {
         }
     }
 
+    /**
+     * das hilfe Command
+     * @param spieler 
+     */
     public void hilfe(Player spieler) {
         spieler.sendMessage(ChatColor.DARK_AQUA + "[TSS]: " + ChatColor.GRAY + "Folgende Commands stehen dir zur Verfügung:");
         spieler.sendMessage(ChatColor.GOLD + "  /tss beitreten " + ChatColor.GRAY + "Lässt dich das Spiel beitreten");
         spieler.sendMessage(ChatColor.GOLD + "  /tss statistik [Spieler] " + ChatColor.GRAY + "Ruft eine Statistik des Spielers auf");
         spieler.sendMessage(ChatColor.GOLD + "  /tss hilfe " + ChatColor.GRAY + "Um diese Hilfe anzuzeigen");
     }
+    
+    /**
+     * ruft die Statistik des Spielers auf
+     * @param spieler 
+     */
+    public void statistik(Player spieler) {
+        String target = spieler.getName();
 
+        int z1, z2;
+        if (Filer.getConfig().getString(target + ".GewonneneRunden") != null) {
+            z1 = Integer.parseInt(Filer.getConfig().getString(target + ".GewonneneRunden"));
+        } else {
+            z1 = 0;
+        }
+        if (Filer.getConfig().getString(target + ".GespielteRunden") != null) {
+            z2 = Integer.parseInt(Filer.getConfig().getString(target + ".GespielteRunden"));
+        } else {
+            z2 = 0;
+        }
+
+        spieler.sendMessage(ChatColor.DARK_AQUA + "[TSS]: " + ChatColor.GOLD + target + ChatColor.GRAY + ": ");
+        spieler.sendMessage(ChatColor.GRAY + "  Gespielte Runden: " + ChatColor.GOLD + z1);
+        spieler.sendMessage(ChatColor.GRAY + "  Gewonnene Runden: " + ChatColor.GOLD + z2);
+    }
+
+    /**
+     * ruft die Statistik eines anderen Spielers auf
+     * @param spieler
+     * @param target 
+     */
     public void statistik(Player spieler, String target) {
         if (plugin.getServer().getPlayer(target) != null) {
             target = plugin.getServer().getPlayer(target).getName();
@@ -108,26 +143,12 @@ public class Commands {
         spieler.sendMessage(ChatColor.GRAY + "  Gewonnene Runden: " + ChatColor.GOLD + z2);
     }
 
-    public void statistik(Player spieler) {
-        String target = spieler.getName();
-
-        int z1, z2;
-        if (Filer.getConfig().getString(target + ".GewonneneRunden") != null) {
-            z1 = Integer.parseInt(Filer.getConfig().getString(target + ".GewonneneRunden"));
-        } else {
-            z1 = 0;
-        }
-        if (Filer.getConfig().getString(target + ".GespielteRunden") != null) {
-            z2 = Integer.parseInt(Filer.getConfig().getString(target + ".GespielteRunden"));
-        } else {
-            z2 = 0;
-        }
-
-        spieler.sendMessage(ChatColor.DARK_AQUA + "[TSS]: " + ChatColor.GOLD + target + ChatColor.GRAY + ": ");
-        spieler.sendMessage(ChatColor.GRAY + "  Gespielte Runden: " + ChatColor.GOLD + z1);
-        spieler.sendMessage(ChatColor.GRAY + "  Gewonnene Runden: " + ChatColor.GOLD + z2);
-    }
-
+    /**
+     * setzt verschiedene Config Variablen
+     * @param spieler
+     * @param cmd
+     * @param param 
+     */
     public void set(Player spieler, String cmd, String param) {
         Location loc = spieler.getTargetBlock(null, 500).getLocation();
         switch (cmd) {
@@ -163,6 +184,10 @@ public class Commands {
         }
     }
 
+    /**
+     * ruft eine Liste der Spieler im Spiel auf
+     * @param spieler 
+     */
     public void liste(Player spieler) {
         String spielerliste = "";
         Iterator<String> it = plugin.getSpiel().getSpielerSet().iterator();
