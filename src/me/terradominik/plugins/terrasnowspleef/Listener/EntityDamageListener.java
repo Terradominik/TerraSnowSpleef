@@ -33,6 +33,7 @@ public class EntityDamageListener implements Listener {
                     if (plugin.getSpiel().getSpielfeld().inSpielfeld(event.getEntity().getLocation())) {
                         if (event.getCause() == DamageCause.FALL) {
                             int y = event.getEntity().getLocation().getBlockY();
+                            
                             if (y > plugin.getConfig().getInt("Boden")) {
                                 plugin.getSpiel().getSpielfeld().loescheFelder(event.getEntity().getLocation().getBlockY());
                             } else {
@@ -54,9 +55,8 @@ public class EntityDamageListener implements Listener {
                                     plugin.broadcastMessage("Es sind noch " + ChatColor.GOLD + "" + set.size() + ChatColor.GRAY + " Spieler übrig");
                                 }
                             }
-                        } else if (event.getCause() == DamageCause.PROJECTILE) {
                             event.setDamage(0);
-                        } else {
+                        } else if (event.getCause() != DamageCause.PROJECTILE) {
                             event.setCancelled(true);
                         }
                     }

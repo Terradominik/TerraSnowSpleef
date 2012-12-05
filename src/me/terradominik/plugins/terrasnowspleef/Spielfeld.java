@@ -1,11 +1,11 @@
 package me.terradominik.plugins.terrasnowspleef;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * Die Spielfeld Klasse von TerraSnowSpleef
@@ -20,7 +20,7 @@ public class Spielfeld {
     private int ebenenAnzahl;
     private World welt;
     private HashSet<Integer> ebenen;
-    private int bauTask, secureCloseTask, loeschTask;
+    private BukkitRunnable bauArenaTask;
 
     /**
      * Der Konstruktor von "Spielfeld"
@@ -58,12 +58,12 @@ public class Spielfeld {
         return new Location(
                 welt,
                 xPunkt.getX() + ((int) (Math.random() * (yPunkt.getX() - xPunkt.getX() + 1))),
-                xPunkt.getY(),
+                xPunkt.getY() + 1,
                 xPunkt.getZ() + ((int) (Math.random() * (yPunkt.getZ() - xPunkt.getZ() + 1))));
     }
 
     public void baueArena() {
-        bauTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+        bauArenaTask = new BukkitRunnable() {
             int ycounter = xPunkt.getBlockY();
             int i2 = 0;
 
@@ -84,15 +84,16 @@ public class Spielfeld {
                     i2++;
                 } else {
                     Spielfeld.this.secureClose();
-                    plugin.getServer().getScheduler().cancelTask(bauTask);
+                    this.cancel();
                 }
 
             }
-        }, 0L, 5L);
+        };
+        bauArenaTask.runTaskTimer(plugin, 0L, 5L);
     }
 
     public void secureClose() {
-        secureCloseTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+        BukkitRunnable secureCloseTask = new BukkitRunnable() {
             int ycounter = xPunkt.getBlockY();
             int i2 = Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX());
             int i4 = 0;
@@ -111,11 +112,12 @@ public class Spielfeld {
                     }
                     i4++;
                 } else {
-                    plugin.getServer().getScheduler().cancelTask(secureCloseTask);
+                    this.cancel();
                 }
 
             }
-        }, 0L, 10L);
+        };
+        secureCloseTask.runTaskTimer(plugin, 0L, 5L);
     }
 
     public boolean inSpielfeld(Location loc) {
@@ -135,11 +137,12 @@ public class Spielfeld {
         for (String spielerName : plugin.getSpiel().getSpielerSet()) {
             if (plugin.getServer().getPlayer(spielerName).getLocation().getBlockY() > y) {
                 istOberster = false;
+                break;
             }
         }
         if (istOberster) {
             for (int i : ebenen) {
-                if (y < i) {
+                if (i > y) {
                     this.loescheEbene(i);
                     ebenen.remove(i);
                 }
@@ -148,14 +151,14 @@ public class Spielfeld {
     }
 
     public void loescheEbene(final int y) {
-        loeschTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+        BukkitRunnable loescheEbeneTask = new BukkitRunnable() {
             int ycounter = xPunkt.getBlockY();
             int i2 = 0;
 
             @Override
             public void run() {
 
-                if (i2 < Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX())) {
+                if (i2 <= Math.abs(yPunkt.getBlockX() - xPunkt.getBlockX())) {
                     for (int i4 = 0; i4 <= Math.abs(yPunkt.getBlockZ() - xPunkt.getBlockZ()); i4++) {
                         for (int i3 = 0; i3 < 5; i3++) {
                             welt.getBlockAt(
@@ -166,13 +169,14 @@ public class Spielfeld {
                     }
                     i2++;
                 } else {
-                    plugin.getServer().getScheduler().cancelTask(loeschTask);
+                    this.cancel();
                 }
             }
-        }, 0L, 5L);
+        };
+        loescheEbeneTask.runTaskTimer(plugin, 0L, 5L);
     }
 
-    public int getBauTask() {
-        return bauTask;
+    public BukkitRunnable getBauArenaTask() {
+        return bauArenaTask;
     }
 }

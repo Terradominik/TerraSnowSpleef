@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * die Spiellogik-Klasse von TerraSnowSpleef
@@ -22,7 +23,6 @@ public class Spiel {
     private boolean startCountdown; //ist true wenn der countdown zum starten des Spieles läuft
     private boolean spiel; //ist true wenn ein spiel läuft
     private HashSet<String> spielerSet = new HashSet<>();
-    public static int joinCountdownTask, startCountdownTask, spielTask;
     public static Spielfeld sf;
 
     /**
@@ -68,14 +68,6 @@ public class Spiel {
     public HashSet<String> getSpielerSet() {
         return spielerSet;
     }
-
-    /**
-     * getter von "spielTask"
-     * @return spielTask
-     */
-    public static int getSpielTask() {
-        return spielTask;
-    }
     
     /**
      * getter von "sf"
@@ -91,7 +83,7 @@ public class Spiel {
     public void starteJoinCountdown() {
         sf.baueArena();
         joinCountdown = true;
-        joinCountdownTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+        BukkitRunnable joinCountdownTask = new BukkitRunnable() {
             int counter = plugin.getConfig().getInt("Countdown-Zeit");
 
             @Override
@@ -103,13 +95,13 @@ public class Spiel {
                         plugin.getSpiel().starteStartCountdown();
                     } else {
                         plugin.broadcastMessage("Zu wenige Spieler haben SnowSpleef betreten");
-                        plugin.getServer().getScheduler().cancelTask(sf.getBauTask());
+                        sf.getBauArenaTask().cancel();
                         for (String spieler : spielerSet) {
                             TerraWorld.removeSpieler(plugin.getServer().getPlayer(spieler));
                         }
                         spielerSet.clear();
                     }
-                    plugin.getServer().getScheduler().cancelTask(joinCountdownTask);
+                    this.cancel();
                 } else {
                     if (counter % 60 == 0) {
                         plugin.broadcastMessage("SnowSpleef startet in " + ChatColor.GOLD + (counter / 60) + ChatColor.GRAY + " Minuten");
@@ -118,7 +110,8 @@ public class Spiel {
                 }
                 counter--;
             }
-        }, 0L, 20L);
+        };
+        joinCountdownTask.runTaskTimer(plugin, 0L, 20L);
     }
 
     /**
@@ -131,7 +124,7 @@ public class Spiel {
         items[1] = new ItemStack(Material.SNOW_BALL, plugin.getConfig().getInt("Schneeball-Anzahl"));
 
         startCountdown = true;
-        startCountdownTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+        BukkitRunnable startCountdownTask = new BukkitRunnable() {
             int counter = plugin.getConfig().getInt("StartCountdown-Zeit") * 20;
             Iterator<String> it = spielerSet.iterator();
             Player spieler;
@@ -143,7 +136,7 @@ public class Spiel {
                     plugin.broadcastMessage(ChatColor.GOLD + "GO!");
                     startCountdown = false;
                     plugin.getSpiel().starteSpiel();
-                    plugin.getServer().getScheduler().cancelTask(startCountdownTask);
+                    this.cancel();
                 } else {
                     if (counter % 20 == 0) {
                         plugin.broadcastMessage(ChatColor.GOLD + "" + (counter / 20) + "...");
@@ -157,7 +150,8 @@ public class Spiel {
                     spieler.teleport(plugin.getSpiel().getSpielfeld().zufaelligerSpawn());
                 }
             }
-        }, 0L, 1L);
+        };
+        startCountdownTask.runTaskTimer(plugin, 0L, 1L);
     }
 
     /**
@@ -165,7 +159,7 @@ public class Spiel {
      */
     public void starteSpiel() {
         spiel = true;
-        spielTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+        BukkitRunnable spielTask = new BukkitRunnable() {
             @Override
             public void run() {
 
@@ -181,7 +175,7 @@ public class Spiel {
                                 if (aboveblock.getData() == (byte) 1) {
                                     aboveblock.setType(Material.AIR);
                                 } else {
-                                    aboveblock.setData((byte) (currentblock.getData() - 1));
+                                    aboveblock.setData((byte) (aboveblock.getData() - 1));
                                 }
                             } else if (aboveblock.getType() == Material.AIR) {
                                 currentblock.setTypeIdAndData(78, (byte) 6, false);
@@ -190,6 +184,7 @@ public class Spiel {
                     }
                 }
             }
-        }, 0L, 10L);
+        };
+        spielTask.runTaskTimer(plugin, 0L, 10L);
     }
 }
