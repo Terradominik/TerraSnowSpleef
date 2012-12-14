@@ -4,10 +4,7 @@ package me.terradominik.plugins.terrasnowspleef;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.terradominik.plugins.terrasnowspleef.Listener.BlockBreakListener;
-import me.terradominik.plugins.terrasnowspleef.Listener.BlockPlaceListener;
-import me.terradominik.plugins.terrasnowspleef.Listener.EntityDamageListener;
-import me.terradominik.plugins.terrasnowspleef.Listener.PlayerQuitListener;
+import me.terradominik.plugins.terrasnowspleef.Listener.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -29,6 +26,7 @@ public class TerraSnowSpleef extends JavaPlugin {
     public BlockPlaceListener blockPlaceListener = new BlockPlaceListener(this);
     public EntityDamageListener entityDamageListener = new EntityDamageListener(this);
     public PlayerQuitListener playerQuitListener = new PlayerQuitListener(this);
+    public ProjectileHitListener projectileHitListener = new ProjectileHitListener(this);
     public Spiel spiel;
      
     /**
@@ -150,6 +148,7 @@ public class TerraSnowSpleef extends JavaPlugin {
         pm.registerEvents(this.blockPlaceListener, this);
         pm.registerEvents(this.entityDamageListener, this);
         pm.registerEvents(this.playerQuitListener, this);
+        pm.registerEvents(this.projectileHitListener, this);
          
         //Config laden
         Filer.loadConfig();

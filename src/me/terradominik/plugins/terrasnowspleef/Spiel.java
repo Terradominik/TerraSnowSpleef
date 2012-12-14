@@ -6,8 +6,6 @@ import me.terradominik.plugins.terraworld.TerraWorld;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -159,32 +157,5 @@ public class Spiel {
      */
     public void starteSpiel() {
         spiel = true;
-        BukkitRunnable spielTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-
-                for (String spielerString : spielerSet) {
-                    Player spieler = plugin.getServer().getPlayer(spielerString);
-                    if (sf.inSpielfeld(spieler.getLocation())) {
-
-                        Block currentblock = spieler.getLocation().add(0, -1, 0).getBlock();
-                        Block aboveblock = currentblock.getRelative(BlockFace.UP);
-
-                        if (currentblock.getType() == Material.SNOW_BLOCK) {
-                            if (aboveblock.getType() == Material.SNOW) {
-                                if (aboveblock.getData() == (byte) 1) {
-                                    aboveblock.setType(Material.AIR);
-                                } else {
-                                    aboveblock.setData((byte) (aboveblock.getData() - 1));
-                                }
-                            } else if (aboveblock.getType() == Material.AIR) {
-                                currentblock.setTypeIdAndData(78, (byte) 6, false);
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        spielTask.runTaskTimer(plugin, 0L, 10L);
     }
 }

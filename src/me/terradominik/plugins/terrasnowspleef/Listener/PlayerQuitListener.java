@@ -1,6 +1,5 @@
 package me.terradominik.plugins.terrasnowspleef.Listener;
 
-import me.terradominik.plugins.terrasnowspleef.Spiel;
 import me.terradominik.plugins.terrasnowspleef.TerraSnowSpleef;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

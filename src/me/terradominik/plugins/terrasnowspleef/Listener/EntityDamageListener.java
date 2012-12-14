@@ -57,7 +57,7 @@ public class EntityDamageListener implements Listener {
                             }
                             event.setDamage(0);
                         } else if (event.getCause() != DamageCause.PROJECTILE) {
-                            event.setCancelled(true);
+                            event.setDamage(0);
                         }
                     }
                 }
