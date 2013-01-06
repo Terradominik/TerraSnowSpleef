@@ -20,7 +20,7 @@ public class Spiel {
     private boolean joinCountdown; //ist true wenn der countdown zum beitreten des Spieles läuft
     private boolean startCountdown; //ist true wenn der countdown zum starten des Spieles läuft
     private boolean spiel; //ist true wenn ein spiel läuft
-    private HashSet<String> spielerSet = new HashSet<>();
+    private HashSet<String> spielerSet;
     public static Spielfeld sf;
 
     /**
@@ -33,6 +33,7 @@ public class Spiel {
         startCountdown = false;
         spiel = false;
         sf = new Spielfeld(plugin);
+        spielerSet = new HashSet<>();
     }
 
     /**
@@ -157,5 +158,17 @@ public class Spiel {
      */
     public void starteSpiel() {
         spiel = true;
+        
+        
+        final ItemStack schneeball = new ItemStack(Material.SNOW_BALL, 1);
+        BukkitRunnable spielTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (String spielerString : spielerSet) {
+                    plugin.getServer().getPlayer(spielerString).getInventory().addItem(schneeball);
+                }
+            }
+        };
+        spielTask.runTaskTimer(plugin, 0L, 1200L);
     }
 }

@@ -1,6 +1,8 @@
 package me.terradominik.plugins.terrasnowspleef;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -19,7 +21,7 @@ public class Spielfeld {
     private Location yPunkt;
     private int ebenenAnzahl;
     private World welt;
-    private HashSet<Integer> ebenen;
+    private HashMap<Integer, Integer> ebenen;
     private BukkitRunnable bauArenaTask;
 
     /**
@@ -48,9 +50,9 @@ public class Spielfeld {
                 Integer.parseInt(zwischen[2]));
 
         ebenenAnzahl = plugin.getConfig().getInt("Ebenen-Anzahl");
-        ebenen = new HashSet<>();
+        ebenen = new HashMap<>();
         for (int i = 0; i < ebenenAnzahl; i++) {
-            ebenen.add(xPunkt.getBlockY() - (i * 20));
+            ebenen.put(i+1,0);
         }
     }
 
@@ -121,38 +123,25 @@ public class Spielfeld {
     }
 
     public boolean inSpielfeld(Location loc) {
-        boolean ausgabe = false;
         if (loc.getX() <= xPunkt.getX()
-                && loc.getX() >= yPunkt.getX()
+                && loc.getX() >= yPunkt.getX()-1
                 && loc.getZ() <= xPunkt.getZ()
-                && loc.getZ() >= yPunkt.getZ()
-                && loc.getY() <= xPunkt.getY()) {
-            ausgabe = true;
+                && loc.getZ() >= yPunkt.getZ()-1
+                && loc.getY() <= xPunkt.getY()
+                && loc.getY() >= xPunkt.getY()-85) {
+            return true;
         }
-        return ausgabe;
+        return false;
     }
 
     public void loescheFelder(int y) {
-        boolean istOberster = true;
-        for (String spielerName : plugin.getSpiel().getSpielerSet()) {
-            if (plugin.getServer().getPlayer(spielerName).getLocation().getBlockY() > y) {
-                istOberster = false;
-                break;
-            }
-        }
-        if (istOberster) {
-            for (int i : ebenen) {
-                if (i > y) {
-                    this.loescheEbene(i);
-                    ebenen.remove(i);
-                }
-            }
-        }
+        this.updateEbenenCounter(y);
     }
 
-    public void loescheEbene(final int y) {
+    public void loescheEbene(int id) {
+        ebenen.put(id, -1);
+        final int ycounter = this.getEbenenY(id);
         BukkitRunnable loescheEbeneTask = new BukkitRunnable() {
-            int ycounter = xPunkt.getBlockY();
             int i2 = 0;
 
             @Override
@@ -173,10 +162,41 @@ public class Spielfeld {
                 }
             }
         };
-        loescheEbeneTask.runTaskTimer(plugin, 0L, 5L);
+        loescheEbeneTask.runTaskTimer(plugin, 0L, 10L);
     }
 
     public BukkitRunnable getBauArenaTask() {
         return bauArenaTask;
+    }
+    
+    public int getEbenenY(int id) {
+        return xPunkt.getBlockY() - (id * 20);
+    }
+    
+    public void starteEbenenCounter() {
+        ebenen.put(1, plugin.getSpiel().getSpielerSet().size());
+    }
+    
+    public void updateEbenenCounter(int y) {
+        Set<String> spielerSet = (HashSet) plugin.getSpiel().getSpielerSet().clone();
+        Set<Integer> ebenenSet = ebenen.keySet();
+        for (int i : ebenenSet) {
+            int ebenenY = this.getEbenenY(i)-5;
+            if (y >= ebenenY) {
+                int z = 0;
+                for (String spielerString : spielerSet) {
+                    if (plugin.getServer().getPlayer(spielerString).getLocation().getBlockY() >= ebenenY) {
+                        z++;
+                    }
+                }
+                if(z != ebenen.get(i) && ebenen.get(i) >= 0) {
+                    ebenen.put(i, z);
+                    if (ebenen.get(i) == 0 || ebenen.get(i) == 1) {
+                        this.loescheEbene(i);
+                    }
+                }
+            }
+        }
+
     }
 }
