@@ -172,7 +172,8 @@ public class Commands {
                     plugin.getConfig().set("Ebenen-Anzahl", Integer.parseInt(param));
                     plugin.saveConfig();
                     plugin.reloadConfig();
-                    plugin.sendMessage(spieler, "Die Ebenen-Anzahl wurde erfolgreich auf " + ChatColor.GOLD + Integer.parseInt(param) + ChatColor.GRAY + " gesetzt");
+                    plugin.sendMessage(spieler, "Die Ebenen-Anzahl wurde erfolgreich auf " 
+                            + ChatColor.GOLD + Integer.parseInt(param) + ChatColor.GRAY + " gesetzt");
                 } catch (NumberFormatException nfe) {
                     plugin.sendMessage(spieler, "Gib einen Zahl ein!");
                 }
@@ -250,7 +251,7 @@ public class Commands {
                 }
                 break;
             case "addspieler":
-                List<String> spielerAddListe = RundenFiler.getConfig().getStringList("runden." + param[0]);
+                HashSet<String> spielerAddListe = new HashSet<>(RundenFiler.getConfig().getStringList("runden." + param[0]));
                 try {
                     spielerAddListe.add(plugin.getServer().getPlayer(param[1]).getName());
                     TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde zur Liste " + param[0] + " hinzugefügt");
@@ -262,7 +263,7 @@ public class Commands {
                 RundenFiler.getConfig().set("runden." + param[0], spielerAddListe);
                 break;
             case "removespieler":
-                List<String> spielerRemoveListe = RundenFiler.getConfig().getStringList("runden." + param[0]);
+                HashSet<String> spielerRemoveListe = new HashSet<>(RundenFiler.getConfig().getStringList("runden." + param[0]));
                 try {
                     spielerRemoveListe.add(plugin.getServer().getPlayer(param[1]).getName());
                     TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde von der Liste " + param[0] + " gelöscht");
