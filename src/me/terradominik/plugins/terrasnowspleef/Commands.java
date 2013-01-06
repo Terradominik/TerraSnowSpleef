@@ -253,23 +253,25 @@ public class Commands {
                 List<String> spielerAddListe = RundenFiler.getConfig().getStringList("runden." + param[0]);
                 try {
                     spielerAddListe.add(plugin.getServer().getPlayer(param[1]).getName());
+                    TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde zur Liste " + param[0] + " hinzugefügt");
                 }
                 catch (NullPointerException npe) {
                     spielerAddListe.add(param[1]);
+                    TerraSnowSpleef.sendMessage(spieler, param[1] + " wurde zur Liste " + param[0] + " hinzugefügt");
                 };
                 RundenFiler.getConfig().set("runden." + param[0], spielerAddListe);
-                TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde zur Liste " + param[0] + " hinzugefügt");
                 break;
             case "removespieler":
                 List<String> spielerRemoveListe = RundenFiler.getConfig().getStringList("runden." + param[0]);
                 try {
                     spielerRemoveListe.add(plugin.getServer().getPlayer(param[1]).getName());
+                    TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde von der Liste " + param[0] + " gelöscht");
                 }
                 catch (NullPointerException npe) {
                     spielerRemoveListe.add(param[1]);
+                    TerraSnowSpleef.sendMessage(spieler, param[1] + " wurde von der Liste " + param[0] + " gelöscht");
                 };
                 RundenFiler.getConfig().set("runden." + param[0], spielerRemoveListe);
-                TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde von der Liste " + param[0] + " gelöscht");
                 break;
             case "showliste":
                 List<String> spielerShowListe = RundenFiler.getConfig().getStringList("runden." + param[0]);
