@@ -123,11 +123,11 @@ public class Spielfeld {
     }
 
     public boolean inSpielfeld(Location loc) {
-        if (loc.getX() <= xPunkt.getX()+1
+        if (loc.getX() <= xPunkt.getX()-1
                 && loc.getX() >= yPunkt.getX()
-                && loc.getZ() <= xPunkt.getZ()+1
+                && loc.getZ() <= xPunkt.getZ()-1
                 && loc.getZ() >= yPunkt.getZ()
-                && loc.getY() <= xPunkt.getY()
+                && loc.getY() <= xPunkt.getY()+5
                 && loc.getY() >= xPunkt.getY()-85) {
             return true;
         }

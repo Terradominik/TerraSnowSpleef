@@ -247,7 +247,8 @@ public class Commands {
                 spiel.starteJoinCountdown();
                 List<String> rundenSpieler = RundenFiler.getConfig().getStringList("runden." + param[0]);
                 for (String spielerString : rundenSpieler) {
-                    this.addSpieler(spieler);
+                    try {this.addSpieler(plugin.getServer().getPlayer(spielerString));}
+                    catch (NullPointerException npe) {};
                 }
                 break;
             case "addspieler":
