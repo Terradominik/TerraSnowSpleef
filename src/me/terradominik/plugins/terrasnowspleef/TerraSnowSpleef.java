@@ -4,6 +4,7 @@ package me.terradominik.plugins.terrasnowspleef;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.terradominik.plugins.terrasnowspleef.Event.RundenFiler;
 import me.terradominik.plugins.terrasnowspleef.Listener.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -176,6 +177,7 @@ public class TerraSnowSpleef extends JavaPlugin {
          
         //Config laden
         Filer.loadConfig();
+        RundenFiler.loadConfig();
         //Enabled Message
         System.out.println(this.toString() + " enabled");
     }
@@ -187,6 +189,7 @@ public class TerraSnowSpleef extends JavaPlugin {
         this.saveConfig();
         try {
             Filer.saveConfig();
+            RundenFiler.saveConfig();
         } catch (IOException ex) {
             Logger.getLogger(TerraSnowSpleef.class.getName()).log(Level.SEVERE, null, ex);
         }

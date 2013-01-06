@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import me.terradominik.plugins.terrasnowspleef.Filer;
 import me.terradominik.plugins.terrasnowspleef.TerraSnowSpleef;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -21,17 +20,15 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 public class EntityDamageListener implements Listener {
 
     public TerraSnowSpleef plugin;
-    public World welt;
 
     public EntityDamageListener(TerraSnowSpleef plugin) {
         this.plugin = plugin;
-        welt = plugin.getServer().getWorld(plugin.getConfig().getString("Welt"));
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
         try {
-            if (event.getEntity() instanceof Player && event.getEntity().getWorld() == welt) {
+            if (event.getEntity() instanceof Player && event.getEntity().getWorld() == plugin.getServer().getWorld(plugin.getConfig().getString("Welt"))) {
                 if (plugin.getSpiel().getSpiel()) {
                     if (plugin.getSpiel().getSpielfeld().inSpielfeld(event.getEntity().getLocation())) {
                         event.setDamage(0);

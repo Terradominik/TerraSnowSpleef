@@ -12,18 +12,16 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class PlayerToggleSneakListener implements Listener {
 
     public TerraSnowSpleef plugin;
-    public World welt;
 
     public PlayerToggleSneakListener(TerraSnowSpleef plugin) {
         this.plugin = plugin;
-        welt = plugin.getServer().getWorld(plugin.getConfig().getString("Welt"));
     }
 
     @EventHandler
     public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
         if (event.isSneaking() == true) {
             final Player spieler = event.getPlayer();
-            if (spieler.getWorld() == welt
+            if (spieler.getWorld() == plugin.getServer().getWorld(plugin.getConfig().getString("Welt"))
                     && plugin.getSpiel().getSpielerSet().contains(spieler.getName())
                     && spieler.getLocation().add(0, 2, 0).getBlock().getType() == Material.SNOW_BLOCK) {
                 BukkitRunnable toggleTask = new BukkitRunnable() {
