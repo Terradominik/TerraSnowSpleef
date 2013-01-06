@@ -280,6 +280,7 @@ public class Commands {
                         eventspawn.getYaw() + "," + 
                         eventspawn.getPitch());
                 plugin.sendMessage(spieler, "Event Spawn erfolgreich gesetzt");
+                break;
             case "stop":
                 HashSet<String> spielerSet = (HashSet<String>) plugin.getSpiel().getSpielerSet().clone();
                 plugin.neuesSpiel();
@@ -310,6 +311,7 @@ public class Commands {
                         RundenFiler.getConfig().set("runden.3", liste5);
                         break;
                 }
+                break;
         }
     }
 }
