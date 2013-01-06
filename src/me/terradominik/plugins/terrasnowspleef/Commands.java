@@ -280,7 +280,7 @@ public class Commands {
                 for (String target : spielerShowListe) {
                     ausgabe += target + ", ";
                 }
-                TerraSnowSpleef.sendMessage(spieler, "Liste " + param[0] + ":");
+                TerraSnowSpleef.sendMessage(spieler, "Liste " + param[0] + " (" + spielerShowListe.size() + " Einträge):");
                 TerraSnowSpleef.sendMessage(spieler, ausgabe);
                 break;
             case "eventspawn":
