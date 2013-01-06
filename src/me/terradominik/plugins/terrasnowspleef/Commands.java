@@ -251,13 +251,23 @@ public class Commands {
                 break;
             case "addspieler":
                 List<String> spielerAddListe = RundenFiler.getConfig().getStringList("runden." + param[0]);
-                spielerAddListe.add(plugin.getServer().getPlayer(param[1]).getName());
+                try {
+                    spielerAddListe.add(plugin.getServer().getPlayer(param[1]).getName());
+                }
+                catch (NullPointerException npe) {
+                    spielerAddListe.add(param[1]);
+                };
                 RundenFiler.getConfig().set("runden." + param[0], spielerAddListe);
                 TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde zur Liste " + param[0] + " hinzugefügt");
                 break;
             case "removespieler":
                 List<String> spielerRemoveListe = RundenFiler.getConfig().getStringList("runden." + param[0]);
-                spielerRemoveListe.remove(plugin.getServer().getPlayer(param[1]).getName());
+                try {
+                    spielerRemoveListe.add(plugin.getServer().getPlayer(param[1]).getName());
+                }
+                catch (NullPointerException npe) {
+                    spielerRemoveListe.add(param[1]);
+                };
                 RundenFiler.getConfig().set("runden." + param[0], spielerRemoveListe);
                 TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde von der Liste " + param[0] + " gelöscht");
                 break;

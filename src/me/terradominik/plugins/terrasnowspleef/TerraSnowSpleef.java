@@ -135,6 +135,7 @@ public class TerraSnowSpleef extends JavaPlugin {
                                         else commands.set(spieler, strings[1].toLowerCase(), strings[2]);
                                     }
                                 }
+                                break;
                                 
                             case "test":
                                 if (spieler.isOp() || spieler.hasPermission("terrasnowspleef.admin")) {
@@ -142,6 +143,7 @@ public class TerraSnowSpleef extends JavaPlugin {
                                         commands.test(spieler, strings[1].toLowerCase());
                                     }
                                 }
+                                break;
                                 
                             case "event":
                                 if (spieler.isOp() || spieler.hasPermission("terrasnowspleef.admin")) {
@@ -155,6 +157,8 @@ public class TerraSnowSpleef extends JavaPlugin {
                                         commands.event(spieler, strings[1].toLowerCase(), param);
                                     }
                                 }
+                                break;
+                                
                             default:
                                 TerraSnowSpleef.sendMessage(spieler, "TerraSnowSpleef von Terradominik für Tauncraft");
                                 break;
