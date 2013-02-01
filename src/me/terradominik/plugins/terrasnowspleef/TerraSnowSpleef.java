@@ -4,7 +4,6 @@ package me.terradominik.plugins.terrasnowspleef;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.terradominik.plugins.terrasnowspleef.Event.RundenFiler;
 import me.terradominik.plugins.terrasnowspleef.Listener.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,7 +26,6 @@ public class TerraSnowSpleef extends JavaPlugin {
     public BlockPlaceListener blockPlaceListener = new BlockPlaceListener(this);
     public EntityDamageListener entityDamageListener = new EntityDamageListener(this);
     public PlayerQuitListener playerQuitListener = new PlayerQuitListener(this);
-    public PlayerJoinListener playerJoinListener = new PlayerJoinListener(this);
     public PlayerToggleSneakListener playerToggleSneakListener = new PlayerToggleSneakListener(this);
     public ProjectileHitListener projectileHitListener = new ProjectileHitListener(this);
     public Spiel spiel;
@@ -145,20 +143,6 @@ public class TerraSnowSpleef extends JavaPlugin {
                                 }
                                 break;
                                 
-                            case "event":
-                                if (spieler.isOp() || spieler.hasPermission("terrasnowspleef.admin")) {
-                                    if (strings.length == 2) {
-                                        commands.event(spieler, strings[1].toLowerCase(), null);
-                                    } else {
-                                        String[] param = new String[strings.length-2];
-                                        for(int i = 0; i < param.length; i++) {
-                                            param[i] = strings[i+2];
-                                        }
-                                        commands.event(spieler, strings[1].toLowerCase(), param);
-                                    }
-                                }
-                                break;
-                                
                             default:
                                 TerraSnowSpleef.sendMessage(spieler, "TerraSnowSpleef von Terradominik für Tauncraft");
                                 break;
@@ -175,13 +159,11 @@ public class TerraSnowSpleef extends JavaPlugin {
         pm.registerEvents(this.blockPlaceListener, this);
         pm.registerEvents(this.entityDamageListener, this);
         pm.registerEvents(this.playerQuitListener, this);
-        pm.registerEvents(this.playerJoinListener, this);
         pm.registerEvents(this.playerToggleSneakListener, this);
         pm.registerEvents(this.projectileHitListener, this);
          
         //Config laden
         Filer.loadConfig();
-        RundenFiler.loadConfig();
         //Enabled Message
         System.out.println(this.toString() + " enabled");
     }
@@ -193,7 +175,6 @@ public class TerraSnowSpleef extends JavaPlugin {
         this.saveConfig();
         try {
             Filer.saveConfig();
-            RundenFiler.saveConfig();
         } catch (IOException ex) {
             Logger.getLogger(TerraSnowSpleef.class.getName()).log(Level.SEVERE, null, ex);
         }

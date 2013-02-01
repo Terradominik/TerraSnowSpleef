@@ -1,10 +1,6 @@
 package me.terradominik.plugins.terrasnowspleef;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import me.terradominik.plugins.terrasnowspleef.Event.RundenFiler;
 import me.terradominik.plugins.terraworld.TerraWorld;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,7 +13,7 @@ import org.bukkit.entity.Player;
  * @author Terradominik
  */
 public class Commands {
-    
+
     private TerraSnowSpleef plugin;
 
     /**
@@ -40,9 +36,9 @@ public class Commands {
         if (!spieler.hasPermission("terraworld.spieler")) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "pex user " + spieler.getName() + " group set spiele");
         }
-        
+
         Spiel spiel = plugin.getSpiel();
-        if (!plugin.getConfig().getBoolean("event")) {
+        if (!plugin.getConfig().getBoolean("event.ist")) {
             if (!spiel.getJoinCountdown()) {
                 if (!spiel.getSpiel() && !spiel.getStartCountdown()) {
                     spiel = new Spiel(plugin);
@@ -54,9 +50,11 @@ public class Commands {
             } else {
                 this.addSpieler(spieler);
             }
-        } else plugin.sendMessage(spieler, "Bitte melde dich noch schnell bei einem Admin falls du noch nicht eingetragen bist");
+        } else {
+            plugin.sendMessage(spieler, "Bitte melde dich noch schnell bei einem Admin falls du noch nicht eingetragen bist");
+        }
     }
-    
+
     public void addSpieler(Player spieler) {
         if (plugin.getSpiel().getSpielerSet().add(spieler.getName())) {
             plugin.broadcastMessage(ChatColor.GOLD + spieler.getName() + ChatColor.GRAY + " hat SnowSpleef betreten");
@@ -74,7 +72,7 @@ public class Commands {
         if (Filer.getConfig().getString(spieler.getName() + ".GewonneneRunden") == null) {
             Filer.getConfig().set(spieler.getName() + ".GewonneneRunden", 0);
         }
-        
+
     }
 
     /**
@@ -96,7 +94,7 @@ public class Commands {
      */
     public void statistik(Player spieler) {
         String target = spieler.getName();
-        
+
         int z1, z2;
         if (Filer.getConfig().getString(target + ".GewonneneRunden") != null) {
             z1 = Integer.parseInt(Filer.getConfig().getString(target + ".GewonneneRunden"));
@@ -108,7 +106,7 @@ public class Commands {
         } else {
             z2 = 0;
         }
-        
+
         spieler.sendMessage(ChatColor.DARK_AQUA + "[TSS]: " + ChatColor.GOLD + target + ChatColor.GRAY + ": ");
         spieler.sendMessage(ChatColor.GRAY + "  Gespielte Runden: " + ChatColor.GOLD + z1);
         spieler.sendMessage(ChatColor.GRAY + "  Gewonnene Runden: " + ChatColor.GOLD + z2);
@@ -126,7 +124,7 @@ public class Commands {
         } else {
             target = plugin.getServer().getOfflinePlayer(target).getName();
         }
-        
+
         int z1, z2;
         if (Filer.getConfig().getString(target + ".GewonneneRunden") != null) {
             z1 = Integer.parseInt(Filer.getConfig().getString(target + ".GewonneneRunden"));
@@ -138,7 +136,7 @@ public class Commands {
         } else {
             z2 = 0;
         }
-        
+
         spieler.sendMessage(ChatColor.DARK_AQUA + "[TSS]: " + ChatColor.GOLD + target + ChatColor.GRAY + ": ");
         spieler.sendMessage(ChatColor.GRAY + "  Gespielte Runden: " + ChatColor.GOLD + z1);
         spieler.sendMessage(ChatColor.GRAY + "  Gewonnene Runden: " + ChatColor.GOLD + z2);
@@ -172,7 +170,7 @@ public class Commands {
                     plugin.getConfig().set("Ebenen-Anzahl", Integer.parseInt(param));
                     plugin.saveConfig();
                     plugin.reloadConfig();
-                    plugin.sendMessage(spieler, "Die Ebenen-Anzahl wurde erfolgreich auf " 
+                    plugin.sendMessage(spieler, "Die Ebenen-Anzahl wurde erfolgreich auf "
                             + ChatColor.GOLD + Integer.parseInt(param) + ChatColor.GRAY + " gesetzt");
                 } catch (NumberFormatException nfe) {
                     plugin.sendMessage(spieler, "Gib einen Zahl ein!");
@@ -186,14 +184,16 @@ public class Commands {
                 break;
             case "totspawn":
                 Location totloc = spieler.getLocation();
-                plugin.getConfig().set("TotSpawn", 
-                        totloc.getWorld().getName() + "," +
-                        totloc.getBlockX() + "," + 
-                        totloc.getBlockY() + "," + 
-                        totloc.getBlockZ() + "," + 
-                        totloc.getYaw() + "," + 
-                        totloc.getPitch());
-                plugin.sendMessage(spieler, "Totspanw erfolgreich gesetzt");
+                plugin.getConfig().set("TotSpawn",
+                        totloc.getWorld().getName() + ","
+                        + totloc.getBlockX() + ","
+                        + totloc.getBlockY() + ","
+                        + totloc.getBlockZ() + ","
+                        + totloc.getYaw() + ","
+                        + totloc.getPitch());
+                plugin.saveConfig();
+                plugin.reloadConfig();
+                plugin.sendMessage(spieler, "Totspawn erfolgreich gesetzt");
                 break;
         }
     }
@@ -209,7 +209,7 @@ public class Commands {
         while (it.hasNext()) {
             spielerliste += it.next() + ", ";
         }
-        
+
         spieler.sendMessage(ChatColor.DARK_AQUA + "[TSS]: " + ChatColor.GRAY + "Folgende Spieler sind noch im Spiel:");
         spieler.sendMessage(ChatColor.GRAY + spielerliste);
     }
@@ -225,106 +225,8 @@ public class Commands {
             case "spielfeld":
                 TerraSnowSpleef.sendMessage(spieler, "DEBUG: " + plugin.getSpiel().getSpielfeld().inSpielfeld(spieler.getLocation()));
                 break;
-        }
-    }
-
-    /**
-     * Event Commands
-     *
-     * @param spieler
-     * @param name
-     * @param param
-     */
-    public void event(Player spieler, String name, String[] param) {
-        switch (name) {
-            case "togglemode":
-                plugin.getConfig().set("event", !plugin.getConfig().getBoolean("event", true));
-                TerraSnowSpleef.sendMessage(spieler, "Der EventModus wurde auf " + plugin.getConfig().getBoolean("event") + " gesetzt");
-                break;
-            case "starterunde":
-                Spiel spiel = plugin.getSpiel();
-                spiel = new Spiel(plugin);
-                spiel.starteJoinCountdown();
-                List<String> rundenSpieler = RundenFiler.getConfig().getStringList("runden." + param[0]);
-                for (String spielerString : rundenSpieler) {
-                    try {this.addSpieler(plugin.getServer().getPlayer(spielerString));}
-                    catch (NullPointerException npe) {};
-                }
-                break;
-            case "addspieler":
-                HashSet<String> spielerAddListe = new HashSet<>(RundenFiler.getConfig().getStringList("runden." + param[0]));
-                try {
-                    spielerAddListe.add(plugin.getServer().getPlayer(param[1]).getName());
-                    TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde zur Liste " + param[0] + " hinzugefügt");
-                }
-                catch (NullPointerException npe) {
-                    spielerAddListe.add(param[1]);
-                    TerraSnowSpleef.sendMessage(spieler, param[1] + " wurde zur Liste " + param[0] + " hinzugefügt");
-                };
-                RundenFiler.getConfig().set("runden." + param[0], spielerAddListe);
-                break;
-            case "removespieler":
-                HashSet<String> spielerRemoveListe = new HashSet<>(RundenFiler.getConfig().getStringList("runden." + param[0]));
-                try {
-                    spielerRemoveListe.add(plugin.getServer().getPlayer(param[1]).getName());
-                    TerraSnowSpleef.sendMessage(spieler, plugin.getServer().getPlayer(param[1]).getName() + " wurde von der Liste " + param[0] + " gelöscht");
-                }
-                catch (NullPointerException npe) {
-                    spielerRemoveListe.add(param[1]);
-                    TerraSnowSpleef.sendMessage(spieler, param[1] + " wurde von der Liste " + param[0] + " gelöscht");
-                };
-                RundenFiler.getConfig().set("runden." + param[0], spielerRemoveListe);
-                break;
-            case "showliste":
-                List<String> spielerShowListe = RundenFiler.getConfig().getStringList("runden." + param[0]);
-                String ausgabe = "";
-                for (String target : spielerShowListe) {
-                    ausgabe += target + ", ";
-                }
-                TerraSnowSpleef.sendMessage(spieler, "Liste " + param[0] + " (" + spielerShowListe.size() + " Einträge):");
-                TerraSnowSpleef.sendMessage(spieler, ausgabe);
-                break;
-            case "eventspawn":
-                Location eventspawn = spieler.getLocation();
-                plugin.getConfig().set("event.spawn", 
-                        eventspawn.getWorld().getName() + "," +
-                        eventspawn.getBlockX() + "," + 
-                        eventspawn.getBlockY() + "," + 
-                        eventspawn.getBlockZ() + "," + 
-                        eventspawn.getYaw() + "," + 
-                        eventspawn.getPitch());
-                plugin.sendMessage(spieler, "Event Spawn erfolgreich gesetzt");
-                break;
-            case "stop":
-                HashSet<String> spielerSet = (HashSet<String>) plugin.getSpiel().getSpielerSet().clone();
-                plugin.neuesSpiel();
-                switch(param[0].charAt(0)) {
-                    case '1':
-                        List<String> liste1 = RundenFiler.getConfig().getStringList("runden.1");
-                        List<String> liste2 = new ArrayList<>();
-                        List<String> liste3 = new ArrayList<>();
-                        for (String spielerString : liste1) {
-                            if(spielerSet.contains(spielerString)) liste2.add(spielerString);
-                            else liste3.add(spielerString);
-                        }
-                        RundenFiler.getConfig().set("runden.2", liste2);
-                        RundenFiler.getConfig().set("runden.q", liste3);
-                        break;
-                    case 'q':
-                        List<String> liste4 = RundenFiler.getConfig().getStringList("runden.2");
-                        for (String spielerString : spielerSet) {
-                            liste4.add(spielerString);
-                        }
-                        RundenFiler.getConfig().set("runden.2", liste4);
-                        break;
-                    case '2':
-                        List<String> liste5 = new ArrayList<>();
-                        for (String spielerString : spielerSet) {
-                            liste5.add(spielerString);
-                        }
-                        RundenFiler.getConfig().set("runden.3", liste5);
-                        break;
-                }
+            case "ebenen":
+                TerraSnowSpleef.sendMessage(spieler, plugin.getSpiel().getSpielfeld().getEbenenID(spieler.getLocation().getBlockY())+ "");
                 break;
         }
     }

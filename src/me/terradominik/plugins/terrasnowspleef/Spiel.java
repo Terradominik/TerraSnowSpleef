@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * die Spiellogik-Klasse von TerraSnowSpleef
+ *
  * @author Dominik
  */
 public class Spiel {
@@ -25,6 +26,7 @@ public class Spiel {
 
     /**
      * Der Konstruktor von "Spiel"
+     *
      * @param plugin
      */
     public Spiel(TerraSnowSpleef plugin) {
@@ -38,6 +40,7 @@ public class Spiel {
 
     /**
      * getter von "joinCountdown"
+     *
      * @return joinCountdown
      */
     public boolean getJoinCountdown() {
@@ -46,6 +49,7 @@ public class Spiel {
 
     /**
      * getter von "startCountdown"
+     *
      * @return startCountdown
      */
     public boolean getStartCountdown() {
@@ -54,6 +58,7 @@ public class Spiel {
 
     /**
      * getter von "spiel"
+     *
      * @return spiel
      */
     public boolean getSpiel() {
@@ -62,14 +67,16 @@ public class Spiel {
 
     /**
      * getter von "spielerSet"
+     *
      * @return spielerSet
      */
     public HashSet<String> getSpielerSet() {
         return spielerSet;
     }
-    
+
     /**
      * getter von "sf"
+     *
      * @return sf
      */
     public Spielfeld getSpielfeld() {
@@ -89,28 +96,19 @@ public class Spiel {
             public void run() {
                 if (counter == 0) {
                     joinCountdown = false;
-                    if (spielerSet.size() >= plugin.getConfig().getInt("Mindest-Spieler")) {
-                        plugin.broadcastMessage("SnowSpleef startet jetzt");
-                        plugin.getSpiel().starteStartCountdown();
-                    } else {
-                        plugin.broadcastMessage("Zu wenige Spieler haben SnowSpleef betreten");
-                        sf.getBauArenaTask().cancel();
-                        for (String spieler : spielerSet) {
-                            TerraWorld.removeSpieler(plugin.getServer().getPlayer(spieler));
-                        }
-                        spielerSet.clear();
-                    }
+                    plugin.getSpiel().starteStartCountdown();
                     this.cancel();
                 } else {
                     if (counter % 60 == 0) {
                         plugin.broadcastMessage("SnowSpleef startet in " + ChatColor.GOLD + (counter / 60) + ChatColor.GRAY + " Minuten");
-                        plugin.getServer().broadcastMessage(ChatColor.GRAY + "Um beizutreten /tss beitreten eingeben");
                     }
                 }
                 counter--;
             }
         };
         joinCountdownTask.runTaskTimer(plugin, 0L, 20L);
+        
+
     }
 
     /**
@@ -118,38 +116,51 @@ public class Spiel {
      */
     public void starteStartCountdown() {
 
+        if (spielerSet.size() >= plugin.getConfig().getInt("Mindest-Spieler")) {
+            plugin.broadcastMessage("SnowSpleef startet jetzt");
+        } else {
+            plugin.broadcastMessage("Zu wenige Spieler haben SnowSpleef betreten");
+            sf.getBauArenaTask().cancel();
+            for (String spieler : spielerSet) {
+                TerraWorld.removeSpieler(plugin.getServer().getPlayer(spieler));
+            }
+            spielerSet.clear();
+            return;
+        }
+        sf.starteEbenenCounter();
         final ItemStack[] items = new ItemStack[2];
         items[0] = new ItemStack(Material.IRON_SPADE, 1, (short) -32768);
         items[1] = new ItemStack(Material.SNOW_BALL, plugin.getConfig().getInt("Schneeball-Anzahl"));
 
         startCountdown = true;
-        BukkitRunnable startCountdownTask = new BukkitRunnable() {
-            int counter = plugin.getConfig().getInt("StartCountdown-Zeit") * 20;
-            Iterator<String> it = spielerSet.iterator();
-            Player spieler;
+        BukkitRunnable startCountdownTask;
+        startCountdownTask = new BukkitRunnable() {
+int counter = plugin.getConfig().getInt("StartCountdown-Zeit") * 20;
+Iterator<String> it = spielerSet.iterator();
+Player spieler;
 
-            @Override
-            public void run() {
-                counter--;
-                if (counter == 0) {
-                    plugin.broadcastMessage(ChatColor.GOLD + "GO!");
-                    startCountdown = false;
-                    plugin.getSpiel().starteSpiel();
-                    this.cancel();
-                } else {
-                    if (counter % 20 == 0) {
-                        plugin.broadcastMessage(ChatColor.GOLD + "" + (counter / 20) + "...");
-                    }
-                }
-                if (it.hasNext()) {
-                    spieler = plugin.getServer().getPlayer(it.next());
-                    spieler.setGameMode(GameMode.SURVIVAL);
-                    spieler.getInventory().clear();
-                    spieler.getInventory().setContents(items);
-                    spieler.teleport(plugin.getSpiel().getSpielfeld().zufaelligerSpawn());
-                }
-            }
-        };
+@Override
+public void run() {
+ counter--;
+ if (counter == 0) {
+     plugin.broadcastMessage(ChatColor.GOLD + "GO!");
+     startCountdown = false;
+     plugin.getSpiel().starteSpiel();
+     this.cancel();
+ } else {
+     if (counter % 20 == 0) {
+         plugin.broadcastMessage(ChatColor.GOLD + "" + (counter / 20) + "...");
+     }
+ }
+ if (it.hasNext()) {
+     spieler = plugin.getServer().getPlayer(it.next());
+     spieler.setGameMode(GameMode.SURVIVAL);
+     spieler.getInventory().clear();
+     spieler.getInventory().setContents(items);
+     spieler.teleport(plugin.getSpiel().getSpielfeld().zufaelligerSpawn());
+ }
+}
+};
         startCountdownTask.runTaskTimer(plugin, 0L, 1L);
     }
 
@@ -158,8 +169,8 @@ public class Spiel {
      */
     public void starteSpiel() {
         spiel = true;
-        
-        
+
+
         final ItemStack schneeball = new ItemStack(Material.SNOW_BALL, 1);
         BukkitRunnable spielTask = new BukkitRunnable() {
             @Override
@@ -170,5 +181,9 @@ public class Spiel {
             }
         };
         spielTask.runTaskTimer(plugin, 0L, 1200L);
+    }
+
+    public void setSpielerSet(HashSet<String> set) {
+        this.spielerSet = set;
     }
 }
