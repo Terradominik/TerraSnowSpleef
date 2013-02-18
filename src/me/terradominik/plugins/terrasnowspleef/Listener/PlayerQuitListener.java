@@ -15,6 +15,6 @@ public class PlayerQuitListener implements Listener {
     
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        plugin.getSpiel().getSpielerSet().remove(event.getPlayer().getName());
+        if (plugin.getSpiel().getSpielerSet().remove(event.getPlayer().getName())) event.getPlayer().setHealth(0);
     }
 }

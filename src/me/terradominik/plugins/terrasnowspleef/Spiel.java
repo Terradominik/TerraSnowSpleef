@@ -2,6 +2,7 @@ package me.terradominik.plugins.terrasnowspleef;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import me.terradominik.plugins.terraworld.TerraWorld;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -100,15 +101,17 @@ public class Spiel {
                     this.cancel();
                 } else {
                     if (counter % 60 == 0) {
-                        plugin.broadcastMessage("SnowSpleef startet in " + ChatColor.GOLD + (counter / 60) + ChatColor.GRAY + " Minuten");
+                        if (counter != 60) {
+                            plugin.broadcastMessage("SnowSpleef startet in " + ChatColor.GOLD + (counter / 60) + ChatColor.GRAY + " Minuten");
+                        } else {
+                            plugin.broadcastMessage("SnowSpleef startet in " + ChatColor.GOLD + "einer" + ChatColor.GRAY + " Minute");
+                        }
                     }
                 }
                 counter--;
             }
         };
         joinCountdownTask.runTaskTimer(plugin, 0L, 20L);
-        
-
     }
 
     /**
@@ -118,56 +121,61 @@ public class Spiel {
 
         if (spielerSet.size() >= plugin.getConfig().getInt("Mindest-Spieler")) {
             plugin.broadcastMessage("SnowSpleef startet jetzt");
+            final ItemStack[] items = new ItemStack[2];
+            items[0] = new ItemStack(Material.IRON_SPADE, 1, (short) -32768);
+            items[1] = new ItemStack(Material.SNOW_BALL, plugin.getConfig().getInt("Schneeball-Anzahl"));
+
+            startCountdown = true;
+            BukkitRunnable startCountdownTask;
+            startCountdownTask = new BukkitRunnable() {
+                int counter = plugin.getConfig().getInt("StartCountdown-Zeit") * 20;
+                Iterator<String> it = spielerSet.iterator();
+                Player spieler;
+
+                @Override
+                public void run() {
+                    counter--;
+                    if (counter == 0) {
+                        plugin.broadcastMessage(ChatColor.GOLD + "GO!");
+                        startCountdown = false;
+                        plugin.getSpiel().starteSpiel();
+                        this.cancel();
+                    } else {
+                        if (counter % 20 == 0) {
+                            for (String spieler : spielerSet) {
+                                plugin.sendMessage(plugin.getServer().getPlayer(spieler), ChatColor.GOLD + "" + (counter / 20) + "...");
+                            }
+                        }
+                    }
+                    if (it.hasNext()) {
+                        spieler = plugin.getServer().getPlayer(it.next());
+                        spieler.setGameMode(GameMode.SURVIVAL);
+                        spieler.getInventory().clear();
+                        spieler.getInventory().setContents(items);
+                        spieler.teleport(plugin.getSpiel().getSpielfeld().zufaelligerSpawn());
+                    }
+                }
+            };
+            startCountdownTask.runTaskTimer(plugin, 0L, 1L);
         } else {
             plugin.broadcastMessage("Zu wenige Spieler haben SnowSpleef betreten");
-            sf.getBauArenaTask().cancel();
-            for (String spieler : spielerSet) {
-                TerraWorld.removeSpieler(plugin.getServer().getPlayer(spieler));
-            }
-            spielerSet.clear();
-            return;
+            this.stoppeSpiel();
         }
-        sf.starteEbenenCounter();
-        final ItemStack[] items = new ItemStack[2];
-        items[0] = new ItemStack(Material.IRON_SPADE, 1, (short) -32768);
-        items[1] = new ItemStack(Material.SNOW_BALL, plugin.getConfig().getInt("Schneeball-Anzahl"));
+    }
 
-        startCountdown = true;
-        BukkitRunnable startCountdownTask;
-        startCountdownTask = new BukkitRunnable() {
-int counter = plugin.getConfig().getInt("StartCountdown-Zeit") * 20;
-Iterator<String> it = spielerSet.iterator();
-Player spieler;
-
-@Override
-public void run() {
- counter--;
- if (counter == 0) {
-     plugin.broadcastMessage(ChatColor.GOLD + "GO!");
-     startCountdown = false;
-     plugin.getSpiel().starteSpiel();
-     this.cancel();
- } else {
-     if (counter % 20 == 0) {
-         plugin.broadcastMessage(ChatColor.GOLD + "" + (counter / 20) + "...");
-     }
- }
- if (it.hasNext()) {
-     spieler = plugin.getServer().getPlayer(it.next());
-     spieler.setGameMode(GameMode.SURVIVAL);
-     spieler.getInventory().clear();
-     spieler.getInventory().setContents(items);
-     spieler.teleport(plugin.getSpiel().getSpielfeld().zufaelligerSpawn());
- }
-}
-};
-        startCountdownTask.runTaskTimer(plugin, 0L, 1L);
+    public void stoppeSpiel() {
+        for (String spieler : spielerSet) {
+            TerraWorld.removeSpieler(plugin.getServer().getPlayer(spieler));
+        }
+        spielerSet.clear();
+        plugin.stoppeSpiel();
     }
 
     /**
      * startet das Spiel
      */
     public void starteSpiel() {
+        sf.ebenenAbbau();
         spiel = true;
 
 

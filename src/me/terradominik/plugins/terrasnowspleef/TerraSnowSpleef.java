@@ -26,7 +26,6 @@ public class TerraSnowSpleef extends JavaPlugin {
     public BlockPlaceListener blockPlaceListener = new BlockPlaceListener(this);
     public EntityDamageListener entityDamageListener = new EntityDamageListener(this);
     public PlayerQuitListener playerQuitListener = new PlayerQuitListener(this);
-    public PlayerToggleSneakListener playerToggleSneakListener = new PlayerToggleSneakListener(this);
     public ProjectileHitListener projectileHitListener = new ProjectileHitListener(this);
     public Spiel spiel;
      
@@ -124,6 +123,10 @@ public class TerraSnowSpleef extends JavaPlugin {
                                     commands.statistik(spieler);
                                 }
                                 break;
+                            
+                            case "spec":
+                                commands.spec(spieler);
+                                break;
 
                             //admincommands
                             case "set":
@@ -134,11 +137,19 @@ public class TerraSnowSpleef extends JavaPlugin {
                                     }
                                 }
                                 break;
+                            
+                            case "stop":
+                                if (spieler.isOp() || spieler.hasPermission("terrasnowspleef.admin")) {
+                                    commands.stop(spieler);
+                                }
+                                break;
                                 
                             case "test":
                                 if (spieler.isOp() || spieler.hasPermission("terrasnowspleef.admin")) {
-                                    if (strings.length > 1) {
-                                        commands.test(spieler, strings[1].toLowerCase());
+                                    if (strings.length == 3) {
+                                        commands.test(spieler, new String[]{strings[1].toLowerCase(), strings[2]});
+                                    } else if(strings.length == 2) {
+                                        commands.test(spieler, new String[]{strings[1].toLowerCase(), ""});
                                     }
                                 }
                                 break;
@@ -159,7 +170,6 @@ public class TerraSnowSpleef extends JavaPlugin {
         pm.registerEvents(this.blockPlaceListener, this);
         pm.registerEvents(this.entityDamageListener, this);
         pm.registerEvents(this.playerQuitListener, this);
-        pm.registerEvents(this.playerToggleSneakListener, this);
         pm.registerEvents(this.projectileHitListener, this);
          
         //Config laden
@@ -210,6 +220,11 @@ public class TerraSnowSpleef extends JavaPlugin {
     }
     
     public void neuesSpiel() {
+        this.getServer().getScheduler().cancelTasks(this);
+        this.spiel = new Spiel(this);
+    }
+    
+    public void stoppeSpiel() {
         this.getServer().getScheduler().cancelTasks(this);
         this.spiel = null;
     }

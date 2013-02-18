@@ -29,7 +29,7 @@ public class BlockBreakListener implements Listener {
                 if (plugin.getSpiel().getSpielerSet().contains(event.getPlayer().getName())) {
                     if (plugin.getSpiel().getSpiel()) {
                         Block block = event.getBlock();
-                        if (plugin.getSpiel().getSpielfeld().inSpielfeld(block.getLocation())) {
+                        if (plugin.getSpiel().getSpielfeld().inSpielfeldBlock(block.getLocation())) {
                             block.breakNaturally(hand);
                         } else {
                             event.setCancelled(true);

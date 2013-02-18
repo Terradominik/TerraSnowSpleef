@@ -34,10 +34,7 @@ public class EntityDamageListener implements Listener {
                     if (event.getCause() == DamageCause.FALL) {
                         event.setDamage(0);
                         if (plugin.getSpiel().getSpielerSet().contains(((Player) event.getEntity()).getName())) {
-
                             int y = event.getEntity().getLocation().getBlockY();
-
-                            plugin.getSpiel().getSpielfeld().loescheFelder(event.getEntity().getLocation().getBlockY());
                             if (y < plugin.getConfig().getInt("Boden")) {
                                 Player spieler = (Player) event.getEntity();
 
@@ -47,14 +44,16 @@ public class EntityDamageListener implements Listener {
                                 set.remove(spieler.getName());
                                 plugin.broadcastMessage(spieler.getName() + " ist runtergefallen, es sind noch " + ChatColor.GOLD + "" + set.size() + ChatColor.GRAY + " Spieler übrig");
                                 plugin.getSpiel().setSpielerSet(set);
-                                if (totspawn == null) {
-                                    String[] temp = plugin.getConfig().getString("Totspawn").split(",");
-                                    totspawn = new Location(
-                                            plugin.getServer().getWorld(temp[0]),
-                                            Integer.parseInt(temp[1]),
-                                            Integer.parseInt(temp[2]),
-                                            Integer.parseInt(temp[3]));
-                                }
+                                String[] temp = plugin.getConfig().getString("TotSpawn").split(",");
+                                totspawn = new Location(
+                                        plugin.getServer().getWorld(temp[0]),
+                                        Integer.parseInt(temp[1]),
+                                        Integer.parseInt(temp[2]),
+                                        Integer.parseInt(temp[3]));
+                                spieler.teleport(totspawn);
+                                spieler.getInventory().clear();
+
+
                                 TerraWorld.removeSpieler(spieler);
                                 if (set.size() == 1) {
                                     Iterator<String> it = set.iterator();
@@ -68,9 +67,12 @@ public class EntityDamageListener implements Listener {
                                     set.remove(spieler.getName());
                                     plugin.getSpiel().setSpielerSet(set);
                                     TerraWorld.removeSpieler(spieler);
-
+                                    spieler.teleport(totspawn);
+                                    spieler.getInventory().clear();
                                     plugin.neuesSpiel();
                                 }
+                            } else {
+                                //plugin.getSpiel().getSpielfeld().loescheFelder(event.getEntity().getLocation().getBlockY());
                             }
                         }
                     }
