@@ -1,0 +1,13 @@
+author: Terradominik & Tauncraft-Coderteam
+database: false
+description: Das taunigste Spleef
+main: me.terradominik.plugins.terrasnowspleef.TerraSnowSpleef
+name: TerraSnowSpleef
+url: http://www.tauncraft.com
+version: 0.2
+load: POSTWORLD;
+permissions:
+commands:
+   tss:
+      description: Das Main Command
+      usage: /<command> [arg0] [arg1]
