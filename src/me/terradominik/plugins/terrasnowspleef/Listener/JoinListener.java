@@ -1,12 +1,6 @@
 package me.terradominik.plugins.terrasnowspleef.Listener;
 
-import com.tauncraft.tauncraftservermanager.TaunPlayer;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import me.terradominik.plugins.terrasnowspleef.Filer;
 import me.terradominik.plugins.terrasnowspleef.TerraSnowSpleef;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;

@@ -37,7 +37,7 @@ public class Commands {
     public void beitreten(Player spieler) {
 
         //Promote
-        if (!spieler.hasPermission("terraworld.spieler")) {
+        if (!spieler.hasPermission("taunsm.rang.spieler")) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "pex user " + spieler.getName() + " group set spiele");
         }
 
